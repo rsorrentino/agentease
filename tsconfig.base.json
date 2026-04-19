@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "forceConsistentCasingInFileNames": true,
+    "baseUrl": ".",
+    "paths": {
+      "@agentease/types": ["packages/types/src"],
+      "@agentease/agent-engine": ["packages/agent-engine/src"],
+      "@agentease/salesforce": ["packages/salesforce/src"],
+      "@agentease/cli-wrapper": ["packages/cli-wrapper/src"],
+      "@agentease/ui": ["packages/ui/src"]
+    }
+  }
+}
