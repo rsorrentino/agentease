@@ -1,16 +1,11 @@
 <div align="center">
-
   <img src="hero.png" alt="AgentEase hero" />
-  
-  <h1>AgentEase</h1>
-  
-  <p>AgentEase is a production-ready open-source monorepo for building, testing, and deploying Salesforce AI agents through a guided no-code / low-code experience.</p>
-<p>It is designed for non-technical users first: consultants, admins, CX teams, and operations teams who need Agentforce DX power without CLI complexity.</p>
-
 </div>
 
 ## Why AgentEase
 
+AgentEase is a production-ready open-source monorepo for building, testing, and deploying Salesforce AI agents through a guided no-code / low-code experience.
+It is designed for non-technical users first: consultants, admins, CX teams, and operations teams who need Agentforce DX power without CLI complexity.
 Salesforce Agentforce DX is powerful, but CLI-driven workflows are hard to operationalize across mixed-skill teams.
 AgentEase adds:
 
