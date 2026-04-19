@@ -97,7 +97,7 @@ Implementation highlights:
 
 ## Database
 
-Prisma + PostgreSQL models:
+Prisma + embedded SQLite models:
 
 - `User`
 - `Agent`
