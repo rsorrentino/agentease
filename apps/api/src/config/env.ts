@@ -6,7 +6,7 @@ config();
 const schema = z.object({
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
   API_PORT: z.coerce.number().default(4000),
-  DATABASE_URL: z.string().min(1),
+  DATABASE_URL: z.string().min(1).default('file:./prisma/agentease.db'),
   JWT_SECRET: z.string().min(12),
   SALESFORCE_CLIENT_ID: z.string().min(1),
   SALESFORCE_CLIENT_SECRET: z.string().min(1),
