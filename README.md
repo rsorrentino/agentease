@@ -1,146 +1,156 @@
-# 🚀 AgentEase
+# AgentEase
 
-**Build Salesforce AI agents without code.**
+AgentEase is a production-ready open-source monorepo for building, testing, and deploying Salesforce AI agents through a guided no-code / low-code experience.
 
-AgentEase is an open-source platform that simplifies the creation, testing, and deployment of Salesforce AI agents powered by Agentforce DX.
+It is designed for non-technical users first: consultants, admins, CX teams, and operations teams who need Agentforce DX power without CLI complexity.
 
-Designed for consultants, business teams, and non-technical users, AgentEase removes the need to work directly with CLI tools and complex configurations.
+## Why AgentEase
 
----
+Salesforce Agentforce DX is powerful, but CLI-driven workflows are hard to operationalize across mixed-skill teams.
+AgentEase adds:
 
-## ✨ Why AgentEase?
+- A **wizard-based builder** for agent creation.
+- A **chat playground** for safe simulation.
+- A **deployment workflow with logs**.
+- **OAuth-based multi-org connectivity**.
+- A strict backend architecture that supports long-term scale.
 
-Building agents with Agentforce DX is powerful—but not accessible to everyone.
+## Architecture Overview
 
-AgentEase bridges that gap by providing:
-- A guided, no-code interface
-- Visual configuration of agents
-- Built-in testing environment
-- One-click deployment to Salesforce
+This repository uses **Turborepo** and strict layered backend design.
 
----
+### Monorepo Layout
 
-## 🧩 Features
-
-- **No-Code Agent Builder**  
-  Create agents using a step-by-step wizard
-
-- **Prompt & Tool Configuration**  
-  Define behavior without writing code
-
-- **Interactive Playground**  
-  Test your agent in a chat interface
-
-- **Agentforce DX Integration**  
-  Automatically generates and executes CLI workflows
-
-- **One-Click Deployment**  
-  Deploy agents to connected Salesforce orgs
-
-- **Multi-Org Support**  
-  Manage multiple environments easily
-
----
-
-## 🏗️ Architecture
-
-AgentEase is built as a monorepo:
-
+```txt
 apps/
-  web/        → Next.js frontend
-  desktop/    → Electron app
-  api/        → Backend API
+  web/        Next.js App Router app (no-code UX)
+  desktop/    Electron wrapper for local CLI + filesystem use
+  api/        Express + Prisma backend
 
 packages/
-  ui/         → Shared UI components
-  agent-engine/
-  salesforce/
-  cli-wrapper/
+  ui/          Shared UI primitives
+  types/       Shared strict TypeScript contracts
+  agent-engine/ Agent config validation/build logic
+  salesforce/  OAuth and token vault abstractions
+  cli-wrapper/ Agentforce DX CLI integration via spawn
+```
 
-Key principles:
-- Modular architecture
-- Strict separation of concerns
-- Typed end-to-end (TypeScript)
+### Backend Layering (apps/api)
 
----
+Each module follows:
 
-## ⚙️ Tech Stack
+- `controller.ts` → HTTP transport only
+- `service.ts` → business logic
+- `repository.ts` → persistence layer
+- `types.ts` → module contracts
 
-- Frontend: Next.js, React, TailwindCSS, shadcn/ui
-- Backend: Node.js, Express
-- Database: PostgreSQL + Prisma
-- Desktop: Electron
-- Integration: Agentforce DX
+Modules included:
 
----
+- `agent`
+- `auth`
+- `deployment`
+- `org`
 
-## 🚀 Getting Started
+### Key API Endpoints
 
-### 1. Clone the repo
-git clone https://github.com/your-org/agentease.git  
-cd agentease
+- `POST /api/agents`
+- `GET /api/agents`
+- `POST /api/deploy`
 
-### 2. Install dependencies
-npm install
+## Core Product Flows
 
-### 3. Configure environment
+### 1) Create Agent (No-code wizard)
+Users progress through simple steps:
+1. Name
+2. Description
+3. Prompt template
+
+### 2) Test in Playground
+Users can simulate interactions in chat format before deployment.
+
+### 3) Deploy to Salesforce
+Deployment calls the CLI wrapper, streams logs, and stores deployment records.
+
+## CLI Wrapper (packages/cli-wrapper)
+
+`AgentforceService` exposes:
+
+- `createAgent(config)`
+- `previewAgent(config)`
+- `deployAgent(config, org)`
+
+Implementation highlights:
+
+- Uses `child_process.spawn` (not `exec`)
+- Captures stdout/stderr streams
+- Parses JSON log lines into structured metadata
+- Returns a strict result shape:
+
+```ts
+{
+  success: boolean;
+  logs: string[];
+  errors: string[];
+  metadata?: Record<string, unknown>;
+}
+```
+
+## Database
+
+Prisma + PostgreSQL models:
+
+- `User`
+- `Agent`
+- `SalesforceOrg`
+- `Deployment`
+
+Schema: `apps/api/prisma/schema.prisma`
+
+## Environment Setup
+
+Copy and configure:
+
+```bash
 cp .env.example .env
+```
 
-### 4. Run development
+Important keys include:
+- `DATABASE_URL`
+- `JWT_SECRET`
+- `SALESFORCE_CLIENT_ID`
+- `SALESFORCE_CLIENT_SECRET`
+- `SALESFORCE_REDIRECT_URI`
+- `SALESFORCE_LOGIN_URL`
+- `AGENTFORCE_CLI_BIN`
+
+## Local Development
+
+```bash
+npm install
 npm run dev
+```
 
----
+Run only API tests:
 
-## 🧪 Usage
+```bash
+npm --workspace @agentease/api test
+```
 
-### Create an Agent
-- Open the dashboard
-- Start the Agent Builder
-- Define prompts, tools, and data sources
+## Non-Technical UX Design Principles
 
-### Test
-- Use the playground to simulate interactions
+AgentEase intentionally optimizes for low cognitive load:
 
-### Deploy
-- Connect a Salesforce org
-- Deploy with one click
+- Progressive disclosure in the agent wizard.
+- Human-readable deployment logs.
+- Clear navigation with task-oriented routes (`/dashboard`, `/agents`, `/playground`).
+- Safe simulation before production deploy.
 
----
+## Security Notes
 
-## 🛣️ Roadmap
+- OAuth token storage uses an **encrypted placeholder vault** abstraction by default.
+- Replace placeholder vault implementation with KMS/HSM-backed encryption in production.
+- Keep all secrets in environment variables.
 
-- Visual drag-and-drop agent builder
-- Agent versioning
-- Collaboration (teams & roles)
-- Real-time execution logs
-- Marketplace for templates
+## License
 
----
-
-## 🤝 Contributing
-
-Contributions are welcome.
-
-Steps:
-1. Fork the repository
-2. Create a feature branch
-3. Submit a pull request
-
-Guidelines:
-- Use TypeScript
-- Follow modular architecture
-- Keep functions small and testable
-
----
-
-## 📜 License
-
-MIT License
-
-Copyright (c) 2026 AgentEase
-
----
-
-## 💡 Vision
-
-AgentEase aims to become the standard interface for building and managing Salesforce AI agents—bringing the power of Agentforce DX to everyone, not just developers.
+MIT © 2026 AgentEase
