@@ -24,14 +24,14 @@ export class PrismaDeploymentRepository implements DeploymentRepository {
         agentId: input.agentId,
         salesforceOrgId: input.salesforceOrgId,
         status: input.status,
-        logsJson: input.logs
+        logsJson: JSON.stringify(input.logs)
       }
     });
 
     return {
       id: result.id,
       status: result.status,
-      logs: result.logsJson as string[],
+      logs: JSON.parse(result.logsJson) as string[],
       errors: []
     };
   }
