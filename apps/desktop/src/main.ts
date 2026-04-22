@@ -14,7 +14,7 @@ function createWindow(): void {
     }
   });
 
-  mainWindow.loadURL(process.env.WEB_APP_URL ?? 'http://localhost:3000');
+  mainWindow.loadURL(process.env.WEB_APP_URL ?? 'http://localhost:3150');
 }
 
 ipcMain.handle('cli:run', async (_event, command: string, args: string[]) => {

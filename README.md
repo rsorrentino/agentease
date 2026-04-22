@@ -130,6 +130,12 @@ npm install
 npm run dev
 ```
 
+`npm run dev` starts all apps in parallel via Turborepo:
+
+- **web** — Next.js on `http://localhost:3150`
+- **desktop** — Electron (waits for the web app to be available before launching)
+- **api** — Express backend
+
 Run only API tests:
 
 ```bash
