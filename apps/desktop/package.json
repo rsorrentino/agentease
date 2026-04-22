@@ -10,7 +10,7 @@
     "test": "echo 'no tests'"
   },
   "dependencies": {
-    "electron": "^31.2.1"
+    "electron": "^41.2.2"
   },
   "devDependencies": {
     "tsx": "^4.17.1",
