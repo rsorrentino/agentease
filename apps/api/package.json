@@ -7,7 +7,8 @@
     "dev": "tsx watch src/server.ts",
     "build": "tsc -p tsconfig.json",
     "start": "node dist/server.js",
-    "test": "jest --runInBand"
+    "test": "jest --runInBand",
+    "predev": "prisma generate"
   },
   "dependencies": {
     "@agentease/agent-engine": "0.1.0",
