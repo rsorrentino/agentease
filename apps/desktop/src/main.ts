@@ -1,6 +1,8 @@
-import { app, BrowserWindow, ipcMain } from 'electron';
+import electron from 'electron';
 import { spawn } from 'child_process';
 import { readFile } from 'fs/promises';
+
+const { app, BrowserWindow, ipcMain } = electron;
 
 function createWindow(): void {
   const mainWindow = new BrowserWindow({
