@@ -8,6 +8,7 @@ export interface DeploymentRepository {
     status: string;
     logs: string[];
   }): Promise<DeploymentResult>;
+  list(agentId?: string): Promise<DeploymentResult[]>;
 }
 
 export class PrismaDeploymentRepository implements DeploymentRepository {
@@ -34,5 +35,18 @@ export class PrismaDeploymentRepository implements DeploymentRepository {
       logs: JSON.parse(result.logsJson) as string[],
       errors: []
     };
+  }
+
+  async list(agentId?: string): Promise<DeploymentResult[]> {
+    const records = await this.db.deployment.findMany({
+      where: agentId ? { agentId } : undefined,
+      orderBy: { createdAt: 'desc' }
+    });
+    return records.map((r) => ({
+      id: r.id,
+      status: r.status,
+      logs: JSON.parse(r.logsJson) as string[],
+      errors: []
+    }));
   }
 }

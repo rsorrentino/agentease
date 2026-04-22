@@ -1,26 +1,45 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { useAgentWizardStore } from '../store/use-agent-wizard-store';
 
+const API = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000';
+
 export function AgentWizard(): JSX.Element {
+  const router = useRouter();
   const [step, setStep] = useState(1);
+  const [error, setError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
   const { name, description, promptTemplate, setField, reset } = useAgentWizardStore();
 
   const submit = async () => {
-    await fetch('http://localhost:4000/api/agents', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        name,
-        description,
-        promptTemplate,
-        tools: [],
-        dataSources: []
-      })
-    });
-    reset();
-    setStep(1);
+    setError(null);
+    setSubmitting(true);
+    try {
+      const response = await fetch(`${API}/api/agents`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name,
+          description,
+          promptTemplate,
+          tools: [],
+          dataSources: []
+        })
+      });
+      if (!response.ok) {
+        const json = (await response.json()) as { message?: string };
+        throw new Error(json.message ?? 'Failed to create agent');
+      }
+      reset();
+      setStep(1);
+      router.push('/agents');
+    } catch (err) {
+      setError((err as Error).message);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -51,6 +70,8 @@ export function AgentWizard(): JSX.Element {
         />
       )}
 
+      {error && <p className="rounded bg-red-50 border border-red-200 px-3 py-2 text-sm text-red-600">{error}</p>}
+
       <div className="flex gap-2">
         <button
           className="rounded border px-4 py-2"
@@ -64,8 +85,13 @@ export function AgentWizard(): JSX.Element {
             Next
           </button>
         ) : (
-          <button className="rounded bg-emerald-600 px-4 py-2 text-white" onClick={submit} type="button">
-            Create Agent
+          <button
+            className="rounded bg-emerald-600 px-4 py-2 text-white disabled:opacity-50"
+            disabled={submitting}
+            onClick={submit}
+            type="button"
+          >
+            {submitting ? 'Creating…' : 'Create Agent'}
           </button>
         )}
       </div>
