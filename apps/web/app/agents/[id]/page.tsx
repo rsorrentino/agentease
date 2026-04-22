@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
 interface AgentDetailsPageProps {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 interface AgentDetail {
@@ -23,9 +23,10 @@ interface Deployment {
 const API = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000';
 
 export default async function AgentDetailsPage({ params }: AgentDetailsPageProps): Promise<JSX.Element> {
+  const { id } = await params;
   const [agentRes, deploymentsRes] = await Promise.all([
-    fetch(`${API}/api/agents/${params.id}`, { cache: 'no-store' }),
-    fetch(`${API}/api/deployments?agentId=${params.id}`, { cache: 'no-store' })
+    fetch(`${API}/api/agents/${id}`, { cache: 'no-store' }),
+    fetch(`${API}/api/deployments?agentId=${id}`, { cache: 'no-store' })
   ]);
 
   if (!agentRes.ok) notFound();
