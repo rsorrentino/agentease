@@ -7,3 +7,4 @@ coverage
 *.log
 apps/api/prisma/dev.db
 package-lock.json
+apps/api/prisma/prisma/agentease.db
