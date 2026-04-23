@@ -1,36 +1,155 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+
+interface Message {
+  role: 'user' | 'agent';
+  text: string;
+}
+
+const SUGGESTED_PROMPTS = [
+  "What's the status of my order #12345?",
+  'I need help resetting my password.',
+  'Can you explain the refund policy?',
+  "I'd like to report a billing issue.",
+  'How do I escalate a case to a manager?',
+  'What are your support hours?',
+];
 
 export function ChatPlayground(): JSX.Element {
   const [input, setInput] = useState('');
-  const [messages, setMessages] = useState<string[]>(['Agent: Hi! Ask me anything about your Salesforce process.']);
+  const [messages, setMessages] = useState<Message[]>([
+    { role: 'agent', text: "Hi! I'm your simulated Salesforce agent. Ask me anything to test how I respond." }
+  ]);
+  const bottomRef = useRef<HTMLDivElement>(null);
 
-  const send = () => {
-    if (!input.trim()) return;
-    setMessages((prev) => [...prev, `You: ${input}`, `Agent: Simulated response for "${input}"`]);
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
+
+  const send = (text?: string) => {
+    const msg = (text ?? input).trim();
+    if (!msg) return;
+    setMessages((prev) => [
+      ...prev,
+      { role: 'user', text: msg },
+      { role: 'agent', text: `Simulated response for: "${msg}"` }
+    ]);
+    setInput('');
+  };
+
+  const handleKey = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      send();
+    }
+  };
+
+  const clearConversation = () => {
+    setMessages([{ role: 'agent', text: "Hi! I'm your simulated Salesforce agent. Ask me anything to test how I respond." }]);
     setInput('');
   };
 
   return (
-    <div className="rounded-lg border bg-white p-6">
-      <div className="mb-4 h-64 space-y-2 overflow-y-auto rounded border p-3">
-        {messages.map((message, i) => (
-          <p className="text-sm" key={`${message}-${i}`}>
-            {message}
-          </p>
-        ))}
+    <div className="card shadow-card flex flex-col" style={{ height: '520px' }}>
+      {/* Header */}
+      <div className="flex items-center gap-3 border-b border-slate-100 px-5 py-4">
+        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-violet-100">
+          <svg className="h-4 w-4 text-violet-600" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+            <path d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </div>
+        <div>
+          <p className="text-sm font-semibold text-slate-900">Chat Simulation</p>
+          <p className="text-xs text-slate-500">Simulated — no real Salesforce calls</p>
+        </div>
+        <div className="ml-auto flex items-center gap-3">
+          <div className="flex items-center gap-1.5">
+            <span className="h-2 w-2 rounded-full bg-emerald-400" />
+            <span className="text-xs text-slate-500">Ready</span>
+          </div>
+          {messages.length > 1 && (
+            <button
+              type="button"
+              onClick={clearConversation}
+              className="rounded-md border border-slate-200 px-2 py-1 text-xs text-slate-500 hover:border-slate-300 hover:text-slate-700 transition-colors"
+              title="Clear conversation"
+            >
+              Clear
+            </button>
+          )}
+        </div>
       </div>
-      <div className="flex gap-2">
-        <input
-          className="flex-1 rounded border p-2"
-          value={input}
-          onChange={(event) => setInput(event.target.value)}
-          placeholder="Type a test prompt"
-        />
-        <button className="rounded bg-slate-900 px-4 py-2 text-white" onClick={send} type="button">
-          Send
-        </button>
+
+      {/* Messages */}
+      <div className="flex-1 overflow-y-auto space-y-3 px-5 py-4">
+        {/* Suggested prompts — shown only at the start */}
+        {messages.length === 1 && (
+          <div className="mb-2">
+            <p className="mb-2 text-xs font-medium text-slate-500">💬 Try a suggested prompt:</p>
+            <div className="flex flex-wrap gap-2">
+              {SUGGESTED_PROMPTS.map((p) => (
+                <button
+                  key={p}
+                  type="button"
+                  onClick={() => send(p)}
+                  className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-left text-xs text-slate-600 hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-700 transition-colors"
+                >
+                  {p}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {messages.map((msg, i) => (
+          <div
+            key={i}
+            className={`flex gap-2.5 ${msg.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}
+          >
+            <div
+              className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-semibold ${
+                msg.role === 'user' ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-600'
+              }`}
+            >
+              {msg.role === 'user' ? 'U' : 'A'}
+            </div>
+            <div
+              className={`max-w-[75%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed ${
+                msg.role === 'user'
+                  ? 'rounded-tr-sm bg-indigo-600 text-white'
+                  : 'rounded-tl-sm border border-slate-200 bg-white text-slate-700'
+              }`}
+            >
+              {msg.text}
+            </div>
+          </div>
+        ))}
+        <div ref={bottomRef} />
+      </div>
+
+      {/* Input */}
+      <div className="border-t border-slate-100 px-4 py-3">
+        <div className="flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 focus-within:border-indigo-400 focus-within:ring-2 focus-within:ring-indigo-100 transition-all">
+          <input
+            className="flex-1 bg-transparent text-sm text-slate-900 placeholder-slate-400 outline-none"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={handleKey}
+            placeholder="Type a test prompt and press Enter…"
+          />
+          <button
+            className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 disabled:opacity-40 transition-colors"
+            disabled={!input.trim()}
+            onClick={() => send()}
+            type="button"
+          >
+            <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+              <path d="M5 12h14M12 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </button>
+        </div>
+        <p className="mt-1.5 text-center text-[10px] text-slate-400">Press Enter to send · Shift+Enter for new line</p>
       </div>
     </div>
   );

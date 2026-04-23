@@ -18,6 +18,10 @@ export class DeploymentService {
     private readonly agentforceService: IAgentforceService
   ) {}
 
+  async list(agentId?: string): Promise<DeploymentResult[]> {
+    return this.deploymentRepository.list(agentId);
+  }
+
   async deploy(input: DeployAgentDTO): Promise<DeploymentResult> {
     const parsed = deploySchema.parse(input);
     const agent = await this.agentService.getById(parsed.agentId);

@@ -20,8 +20,8 @@ model Agent {
   name            String
   description     String
   promptTemplate  String
-  toolsJson       Json
-  dataSourcesJson Json
+  toolsJson       String
+  dataSourcesJson String
   deployments     Deployment[]
   createdAt       DateTime     @default(now())
   updatedAt       DateTime     @updatedAt
@@ -45,7 +45,7 @@ model Deployment {
   agentId         String
   salesforceOrgId String
   status          String
-  logsJson        Json
+  logsJson        String
   createdAt       DateTime      @default(now())
 
   agent           Agent         @relation(fields: [agentId], references: [id])

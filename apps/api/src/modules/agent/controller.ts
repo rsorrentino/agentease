@@ -14,8 +14,21 @@ export function createAgentController(service: AgentService): Router {
   });
 
   router.get('/agents', async (_req: Request, res: Response) => {
-    const agents = await service.list();
-    res.json(agents);
+    try {
+      const agents = await service.list();
+      res.json(agents);
+    } catch (error) {
+      res.status(500).json({ message: (error as Error).message });
+    }
+  });
+
+  router.get('/agents/:id', async (req: Request, res: Response) => {
+    try {
+      const agent = await service.getById(req.params.id);
+      res.json(agent);
+    } catch (error) {
+      res.status(404).json({ message: (error as Error).message });
+    }
   });
 
   return router;

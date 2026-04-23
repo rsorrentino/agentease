@@ -1,6 +1,8 @@
-import { app, BrowserWindow, ipcMain } from 'electron';
+import electron from 'electron';
 import { spawn } from 'child_process';
 import { readFile } from 'fs/promises';
+
+const { app, BrowserWindow, ipcMain } = electron;
 
 function createWindow(): void {
   const mainWindow = new BrowserWindow({
@@ -12,7 +14,7 @@ function createWindow(): void {
     }
   });
 
-  mainWindow.loadURL(process.env.WEB_APP_URL ?? 'http://localhost:3000');
+  mainWindow.loadURL(process.env.WEB_APP_URL ?? 'http://localhost:3150');
 }
 
 ipcMain.handle('cli:run', async (_event, command: string, args: string[]) => {

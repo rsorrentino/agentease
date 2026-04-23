@@ -1,20 +1,25 @@
 import './globals.css';
-import Link from 'next/link';
 import { ReactNode } from 'react';
+import { SidebarNav } from '../components/sidebar-nav';
+
+export const metadata = {
+  title: 'AgentEase',
+  description: 'Build, test, and deploy Salesforce AI agents — no code required.'
+};
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
-      <body>
-        <header className="border-b bg-white">
-          <nav className="mx-auto flex max-w-6xl gap-6 p-4 text-sm font-medium">
-            <Link href="/dashboard">Dashboard</Link>
-            <Link href="/agents">Agents</Link>
-            <Link href="/agents/new">New Agent</Link>
-            <Link href="/playground">Playground</Link>
-          </nav>
-        </header>
-        <main className="mx-auto max-w-6xl p-6">{children}</main>
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+      </head>
+      <body className="flex h-screen overflow-hidden bg-slate-50 font-sans">
+        <SidebarNav />
+        <div className="ml-[240px] flex flex-1 flex-col overflow-y-auto">
+          <main className="flex-1 px-8 py-8 animate-fade-in">{children}</main>
+        </div>
       </body>
     </html>
   );

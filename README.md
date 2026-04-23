@@ -53,23 +53,36 @@ Modules included:
 
 ### Key API Endpoints
 
-- `POST /api/agents`
-- `GET /api/agents`
-- `POST /api/deploy`
+| Method | Path | Description |
+|--------|------|-------------|
+| `GET` | `/api/agents` | List all agents |
+| `POST` | `/api/agents` | Create an agent |
+| `GET` | `/api/agents/:id` | Get agent details + deployments |
+| `GET` | `/api/orgs` | List connected Salesforce orgs |
+| `POST` | `/api/orgs` | Connect a new Salesforce org |
+| `GET` | `/api/deployments?agentId=` | List deployments |
+| `POST` | `/api/deploy` | Trigger a deployment |
+| `GET` | `/health` | Health check |
 
 ## Core Product Flows
 
-### 1) Create Agent (No-code wizard)
-Users progress through simple steps:
-1. Name
-2. Description
-3. Prompt template
+### 1) Create Agent (Guided wizard)
+Users progress through a 3-step wizard with contextual help, best-practice tips, and Salesforce-specific guidance at every step:
+1. **Name** — action-oriented name suggestions (e.g. "Case Deflector", "Lead Qualifier")
+2. **Description** — guidance on describing the business outcome
+3. **Prompt Template** — 5 pre-built Salesforce templates to choose from (Case Deflection, Lead Qualification, Order Status, Knowledge Search, IT Helpdesk) or write your own
 
 ### 2) Test in Playground
-Users can simulate interactions in chat format before deployment.
+Users simulate interactions with their agent in a chat interface before deploying:
+- Clickable suggested prompts to try common scenarios quickly
+- Clear conversation button to reset
+- Simulated agent responses (real Agentforce calls in future releases)
 
 ### 3) Deploy to Salesforce
-Deployment calls the CLI wrapper, streams logs, and stores deployment records.
+Deployment calls the Agentforce DX CLI via the CLI wrapper, streams logs back to the UI, and stores deployment records in the database.
+
+### 4) Onboarding Checklist
+First-time users see a step-by-step "Get started in 4 steps" checklist on the dashboard guiding them through: Connect Org → Create Agent → Test → Deploy.
 
 ## CLI Wrapper (packages/cli-wrapper)
 
@@ -114,23 +127,47 @@ Copy and configure:
 cp .env.example .env
 ```
 
-Important keys include:
-- `DATABASE_URL`
-- `JWT_SECRET`
-- `SALESFORCE_CLIENT_ID`
-- `SALESFORCE_CLIENT_SECRET`
-- `SALESFORCE_REDIRECT_URI`
-- `SALESFORCE_LOGIN_URL`
-- `AGENTFORCE_CLI_BIN`
+| Variable | Description | Example |
+|----------|-------------|----------|
+| `DATABASE_URL` | SQLite DB path (relative to `apps/api/`) | `file:./prisma/agentease.db` |
+| `API_PORT` | Express API port | `4000` |
+| `WEB_APP_URL` | URL the Electron app loads | `http://localhost:3150` |
+| `NEXT_PUBLIC_API_URL` | API URL used by the Next.js frontend | `http://localhost:4000` |
+| `JWT_SECRET` | Secret for signing JWT tokens | Replace with a long random string |
+| `SALESFORCE_CLIENT_ID` | Connected App consumer key | From Salesforce Setup → App Manager |
+| `SALESFORCE_CLIENT_SECRET` | Connected App consumer secret | From Salesforce Setup → App Manager |
+| `SALESFORCE_REDIRECT_URI` | OAuth callback URL | `http://localhost:4000/api/auth/callback` |
+| `SALESFORCE_LOGIN_URL` | Salesforce login URL | `https://login.salesforce.com` |
+| `AGENTFORCE_CLI_BIN` | Agentforce CLI binary name | `sf` |
+
+> **Note:** The SQLite database is created automatically on first run — you don't need to set it up manually.
 
 ## Local Development
 
+### Prerequisites
+
+- Node.js 18+
+- [Salesforce CLI (`sf`)](https://developer.salesforce.com/tools/salesforcecli) installed and authenticated
+
+### Start everything
+
 ```bash
 npm install
+cp .env.example .env   # then edit .env with your values
 npm run dev
 ```
 
-Run only API tests:
+`npm run dev` starts all three apps in parallel via Turborepo:
+
+| App | URL | Description |
+|-----|-----|-------------|
+| **web** | http://localhost:3150 | Next.js no-code UI |
+| **api** | http://localhost:4000 | Express + Prisma backend |
+| **desktop** | — | Electron wrapper (auto-opens after web is ready) |
+
+The SQLite database is automatically created at `apps/api/prisma/agentease.db` on first start.
+
+### Run API tests only
 
 ```bash
 npm --workspace @agentease/api test
@@ -138,12 +175,17 @@ npm --workspace @agentease/api test
 
 ## Non-Technical UX Design Principles
 
-AgentEase intentionally optimizes for low cognitive load:
+AgentEase is built for Salesforce admins, consultants, and CX teams — not just developers:
 
-- Progressive disclosure in the agent wizard.
-- Human-readable deployment logs.
-- Clear navigation with task-oriented routes (`/dashboard`, `/agents`, `/playground`).
-- Safe simulation before production deploy.
+- **Guided wizard** with contextual tips and best-practice advice at every step.
+- **Clickable name suggestions** so users don't start from a blank page.
+- **Pre-built prompt templates** for the most common Salesforce agent use cases.
+- **Onboarding checklist** on the dashboard that walks first-time users through the full flow.
+- **Suggested prompts** in the playground so users know what to test.
+- **Progressive disclosure** — complexity is hidden until it's needed.
+- **Human-readable deployment logs** — no raw JSON or CLI output exposed.
+- **Clear task-oriented navigation** — Dashboard, Agents, Playground.
+- **Safe simulation before production deploy** — test first, ship with confidence.
 
 ## Security Notes
 
