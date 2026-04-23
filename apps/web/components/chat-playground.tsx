@@ -7,10 +7,19 @@ interface Message {
   text: string;
 }
 
+const SUGGESTED_PROMPTS = [
+  "What's the status of my order #12345?",
+  'I need help resetting my password.',
+  'Can you explain the refund policy?',
+  "I'd like to report a billing issue.",
+  'How do I escalate a case to a manager?',
+  'What are your support hours?',
+];
+
 export function ChatPlayground(): JSX.Element {
   const [input, setInput] = useState('');
   const [messages, setMessages] = useState<Message[]>([
-    { role: 'agent', text: 'Hi! I'm your simulated Salesforce agent. Ask me anything to test how I respond.' }
+    { role: 'agent', text: "Hi! I'm your simulated Salesforce agent. Ask me anything to test how I respond." }
   ]);
   const bottomRef = useRef<HTMLDivElement>(null);
 
@@ -18,13 +27,13 @@ export function ChatPlayground(): JSX.Element {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  const send = () => {
-    const text = input.trim();
-    if (!text) return;
+  const send = (text?: string) => {
+    const msg = (text ?? input).trim();
+    if (!msg) return;
     setMessages((prev) => [
       ...prev,
-      { role: 'user', text },
-      { role: 'agent', text: `Simulated response for: "${text}"` }
+      { role: 'user', text: msg },
+      { role: 'agent', text: `Simulated response for: "${msg}"` }
     ]);
     setInput('');
   };
@@ -34,6 +43,11 @@ export function ChatPlayground(): JSX.Element {
       e.preventDefault();
       send();
     }
+  };
+
+  const clearConversation = () => {
+    setMessages([{ role: 'agent', text: "Hi! I'm your simulated Salesforce agent. Ask me anything to test how I respond." }]);
+    setInput('');
   };
 
   return (
@@ -49,14 +63,45 @@ export function ChatPlayground(): JSX.Element {
           <p className="text-sm font-semibold text-slate-900">Chat Simulation</p>
           <p className="text-xs text-slate-500">Simulated — no real Salesforce calls</p>
         </div>
-        <div className="ml-auto flex items-center gap-1.5">
-          <span className="h-2 w-2 rounded-full bg-emerald-400" />
-          <span className="text-xs text-slate-500">Ready</span>
+        <div className="ml-auto flex items-center gap-3">
+          <div className="flex items-center gap-1.5">
+            <span className="h-2 w-2 rounded-full bg-emerald-400" />
+            <span className="text-xs text-slate-500">Ready</span>
+          </div>
+          {messages.length > 1 && (
+            <button
+              type="button"
+              onClick={clearConversation}
+              className="rounded-md border border-slate-200 px-2 py-1 text-xs text-slate-500 hover:border-slate-300 hover:text-slate-700 transition-colors"
+              title="Clear conversation"
+            >
+              Clear
+            </button>
+          )}
         </div>
       </div>
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto space-y-3 px-5 py-4">
+        {/* Suggested prompts — shown only at the start */}
+        {messages.length === 1 && (
+          <div className="mb-2">
+            <p className="mb-2 text-xs font-medium text-slate-500">💬 Try a suggested prompt:</p>
+            <div className="flex flex-wrap gap-2">
+              {SUGGESTED_PROMPTS.map((p) => (
+                <button
+                  key={p}
+                  type="button"
+                  onClick={() => send(p)}
+                  className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-left text-xs text-slate-600 hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-700 transition-colors"
+                >
+                  {p}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
         {messages.map((msg, i) => (
           <div
             key={i}
@@ -96,7 +141,7 @@ export function ChatPlayground(): JSX.Element {
           <button
             className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 disabled:opacity-40 transition-colors"
             disabled={!input.trim()}
-            onClick={send}
+            onClick={() => send()}
             type="button"
           >
             <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
