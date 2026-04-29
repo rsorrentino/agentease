@@ -1,4 +1,5 @@
 import { AgentConfigService } from '@agentease/agent-engine';
+import { IAgentforceService } from '@agentease/cli-wrapper';
 import { AgentService } from '../src/modules/agent/service';
 import { AgentRepository } from '../src/modules/agent/repository';
 
@@ -17,7 +18,13 @@ describe('AgentService', () => {
       findById: jest.fn(async () => null)
     };
 
-    const service = new AgentService(repo, new AgentConfigService());
+    const agentforceService: IAgentforceService = {
+      createAgent: jest.fn(async () => ({ success: true, logs: ['created'], errors: [] })),
+      previewAgent: jest.fn(),
+      deployAgent: jest.fn()
+    };
+
+    const service = new AgentService(repo, new AgentConfigService(), agentforceService);
     const result = await service.create({
       name: 'Support Agent',
       description: 'Helps with support',
@@ -28,5 +35,9 @@ describe('AgentService', () => {
 
     expect(result.id).toBe('a1');
     expect(repo.create).toHaveBeenCalled();
+    expect(agentforceService.createAgent).toHaveBeenCalledWith({
+      name: 'Support Agent',
+      promptTemplate: 'Assist user'
+    });
   });
 });

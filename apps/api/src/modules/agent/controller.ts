@@ -31,5 +31,14 @@ export function createAgentController(service: AgentService): Router {
     }
   });
 
+  router.post('/agents/:id/preview', async (req: Request, res: Response) => {
+    try {
+      const result = await service.preview(req.params.id);
+      res.json(result);
+    } catch (error) {
+      res.status(400).json({ message: (error as Error).message });
+    }
+  });
+
   return router;
 }

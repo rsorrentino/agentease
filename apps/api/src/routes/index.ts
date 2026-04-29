@@ -23,7 +23,7 @@ export function createApiRouter(): Router {
   const router = Router();
 
   const orgService = new OrgService(new PrismaOrgRepository(prisma));
-  const agentService = new AgentService(new PrismaAgentRepository(prisma), new AgentConfigService());
+  const agentService = new AgentService(new PrismaAgentRepository(prisma), new AgentConfigService(), createAgentforceIntegration());
 
   const authService = new AuthService(
     new InMemoryAuthRepository(),

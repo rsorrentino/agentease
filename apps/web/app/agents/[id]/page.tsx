@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import { PreviewAgentButton } from '../../../components/preview-agent-button';
 
 interface AgentDetailsPageProps {
   params: Promise<{ id: string }>;
@@ -104,6 +105,7 @@ export default async function AgentDetailsPage({ params }: AgentDetailsPageProps
               </svg>
               Test in Playground
             </Link>
+            <PreviewAgentButton agentId={agent.id} />
             <Link
               href={`/playground?agentId=${agent.id}&deploy=1`}
               className="btn-primary w-full justify-center"
